@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp", "WebApp\WebApp.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebJob", "WebJob\WebJob.csproj", "{09A1088B-A508-4F71-8133-6463FECEF012}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{99982E1A-4F80-491F-B191-3049A0ADE2F3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contracts", "Contracts\Contracts.csproj", "{9F2C64A6-0F2B-4494-8AE0-7F4DACD5FC37}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{09A1088B-A508-4F71-8133-6463FECEF012}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09A1088B-A508-4F71-8133-6463FECEF012}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09A1088B-A508-4F71-8133-6463FECEF012}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99982E1A-4F80-491F-B191-3049A0ADE2F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99982E1A-4F80-491F-B191-3049A0ADE2F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99982E1A-4F80-491F-B191-3049A0ADE2F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99982E1A-4F80-491F-B191-3049A0ADE2F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F2C64A6-0F2B-4494-8AE0-7F4DACD5FC37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F2C64A6-0F2B-4494-8AE0-7F4DACD5FC37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F2C64A6-0F2B-4494-8AE0-7F4DACD5FC37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F2C64A6-0F2B-4494-8AE0-7F4DACD5FC37}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
