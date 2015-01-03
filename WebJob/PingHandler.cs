@@ -1,4 +1,5 @@
-﻿using Contracts.Commands;
+﻿using System;
+using Contracts.Commands;
 using Contracts.Messages;
 using NServiceBus;
 using NServiceBus.Logging;
@@ -12,8 +13,12 @@ namespace WebJob
 
         public void Handle(Ping message)
         {
-            logger.Info("Received Ping");
-            Bus.Reply<Pong>(m => m.OriginalMessage = message.Message);
+            logger.Info("Received Ping: " + message);
+            Bus.Reply<Pong>(m =>
+            {
+                m.OriginalMessage = message.Message;
+                m.Timestamp = DateTime.UtcNow;
+            });
             logger.Info("Replying with Pong");
         }
     }

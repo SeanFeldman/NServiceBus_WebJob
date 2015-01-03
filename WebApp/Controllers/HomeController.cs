@@ -1,38 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using Contracts.Commands;
+using NServiceBus;
+using NServiceBus.Logging;
 
 namespace WebApp.Controllers
 {
     public class HomeController : Controller
     {
+        private ILog logger = LogManager.GetLogger<HomeController>();
+        public IBus Bus { get; set; }
+
         public ActionResult Index()
         {
             return View();
         }
 
-        public ActionResult About()
+        public ActionResult SendCommand(string message)
         {
-            ViewBag.Message = "Your application description page.";
+            Bus.Send<Ping>(ping =>
+            {
+                ping.Message = message;
+                ping.Timestamp = DateTime.UtcNow;
+            });
+            logger.Info("WebApp - sent a ping with message: " + message);
 
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
-        }
-
-        public ActionResult SendCommand()
-        {
-            MvcApplication.startableBus.Send<Ping>(ping => ping.Message = "ping from web");
-            Trace.WriteLine("WebApp - sent a message");
             return View("Index");
         }
     }

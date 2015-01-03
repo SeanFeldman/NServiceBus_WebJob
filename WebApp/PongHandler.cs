@@ -10,7 +10,7 @@ namespace WebApp
 
         public void Handle(Pong message)
         {
-            logger.Info("Received Pong message");
+            logger.Info("Received Pong: " + message);
         }
     }
 }

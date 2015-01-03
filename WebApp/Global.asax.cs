@@ -2,6 +2,8 @@
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using Autofac;
+using Autofac.Integration.Mvc;
 using NServiceBus;
 using NServiceBus.Config;
 using NServiceBus.Config.ConfigurationSource;
@@ -12,7 +14,7 @@ namespace WebApp
 {
     public class MvcApplication : HttpApplication
     {
-        public static IStartableBus startableBus;
+        private static IStartableBus startableBus;
 
         protected void Application_Start()
         {
@@ -22,16 +24,26 @@ namespace WebApp
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             var configuration = new BusConfiguration();
-            configuration.DisableFeature<SecondLevelRetries>();
-            configuration.DisableFeature<Sagas>();
-            configuration.DisableFeature<TimeoutManager>();
-            configuration.AzureConfigurationSource();
+            WireupAutofacContainer(configuration);
             configuration.UseTransport<AzureStorageQueueTransport>();
             configuration.UsePersistence<AzureStoragePersistence>();
             configuration.ApplyMessageConventions();
+            configuration.DisableFeature<SecondLevelRetries>();
+            configuration.DisableFeature<Sagas>();
+            configuration.DisableFeature<TimeoutManager>();
             //~configuration.EnableInstallers();
             startableBus = Bus.Create(configuration);
             startableBus.Start();
+        }
+
+        private static void WireupAutofacContainer(BusConfiguration configuration)
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterControllers(typeof (MvcApplication).Assembly)
+                .PropertiesAutowired();
+            var container = builder.Build();
+            DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
+            configuration.UseContainer<AutofacBuilder>(x => x.ExistingLifetimeScope(container));
         }
 
         protected void Application_End()

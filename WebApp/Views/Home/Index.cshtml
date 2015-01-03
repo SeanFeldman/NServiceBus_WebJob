@@ -1,18 +1,14 @@
 ﻿@{
-    ViewBag.Title = "Home Page";
+    ViewBag.Title = "NSB PingPong";
 }
 
 <div class="row">
     <div class="col-md-4">
-        <h2>Send a command</h2>
+        <h2>Ping webjob</h2>
         <p>
-            Send a command to WebJob
-        </p>
-        <p>
-            @*@Html.ActionLink("Send", "SendCommand")<br/>*@
-
             <form action="/Home/SendCommand" method="POST">
-                <input type="submit" title="Submit a command" />
+                Short message: <input type="text" name="message" /><br/>
+                <input type="submit"/>
             </form>
         </p>
     </div>
