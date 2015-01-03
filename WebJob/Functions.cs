@@ -33,7 +33,6 @@ namespace WebJob
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                //log.WriteLine("Host: still running at " + TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tzi));
                 Thread.Sleep(3000);
             }
 
