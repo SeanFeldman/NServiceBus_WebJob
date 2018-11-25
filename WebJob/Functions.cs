@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using NServiceBus;
 using NServiceBus.Config;
@@ -12,21 +13,15 @@ namespace WebJob
 {
     public class Functions
     {
-        [NoAutomaticTrigger]
-        public static void Host(TextWriter log, CancellationToken cancellationToken)
-        {
-            var configuration = new BusConfiguration();
-            configuration.DisableFeature<SecondLevelRetries>();
-            configuration.DisableFeature<Sagas>();
-            configuration.DisableFeature<TimeoutManager>();
+        public static IEndpointInstance NSB;
 
-            configuration.AzureConfigurationSource();
-            configuration.UseTransport<AzureStorageQueueTransport>();
-            configuration.UsePersistence<AzureStoragePersistence>();
-            configuration.ApplyMessageConventions();
-            
-            var startableBus = Bus.Create(configuration);
-            startableBus.Start();
+        [NoAutomaticTrigger]
+        public static async Task Host(TextWriter log, CancellationToken cancellationToken)
+        {
+            var configuration = new EndpointConfiguration("WebJob");
+            Configuration.ConfigureEndpoint(configuration);
+
+            NSB = await Endpoint.Start(configuration).ConfigureAwait(false);
             log.WriteLine("WebJob - bus started");
 
             var tzi = TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time");
@@ -36,30 +31,10 @@ namespace WebJob
                 Thread.Sleep(3000);
             }
 
-            startableBus.Dispose();
             log.WriteLine("Host: Canceled at " + TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tzi));
         }
-    }
 
-    internal class MessageForwardingInCaseOfFaultSource : IProvideConfiguration<MessageForwardingInCaseOfFaultConfig>
-    {
-        public MessageForwardingInCaseOfFaultConfig GetConfiguration()
-        {
-            return new MessageForwardingInCaseOfFaultConfig
-            {
-                ErrorQueue = "error"
-            };
-        }
+        
     }
-
-    internal class Audit : IProvideConfiguration<AuditConfig>
-    {
-        public AuditConfig GetConfiguration()
-        {
-            return new AuditConfig
-            {
-                QueueName = "audit"
-            };
-        }
-    }
+    
 }

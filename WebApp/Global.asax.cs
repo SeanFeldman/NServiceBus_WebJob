@@ -14,7 +14,7 @@ namespace WebApp
 {
     public class MvcApplication : HttpApplication
     {
-        private static IStartableBus startableBus;
+        private static IEndpointInstance NSBEndpoint;
 
         protected void Application_Start()
         {
@@ -23,73 +23,33 @@ namespace WebApp
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-            var configuration = new BusConfiguration();
+            var configuration = new EndpointConfiguration("WebApp");
             WireupAutofacContainer(configuration);
-            configuration.UseTransport<AzureStorageQueueTransport>();
-            configuration.UsePersistence<AzureStoragePersistence>();
-            configuration.ApplyMessageConventions();
-            configuration.DisableFeature<SecondLevelRetries>();
-            configuration.DisableFeature<Sagas>();
-            configuration.DisableFeature<TimeoutManager>();
-            //~configuration.EnableInstallers();
-            startableBus = Bus.Create(configuration);
-            startableBus.Start();
+            Shared.Configuration.ConfigureEndpoint(configuration);
+            NSBEndpoint = Endpoint.Start(configuration).Result;
         }
 
-        private static void WireupAutofacContainer(BusConfiguration configuration)
+        private static void WireupAutofacContainer(EndpointConfiguration configuration)
         {
             var builder = new ContainerBuilder();
             builder.RegisterControllers(typeof (MvcApplication).Assembly)
                 .PropertiesAutowired();
+         
+            builder.Register(x => NSBEndpoint)
+                .As<IEndpointInstance>()
+                .SingleInstance();
+
             var container = builder.Build();
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
+
             configuration.UseContainer<AutofacBuilder>(x => x.ExistingLifetimeScope(container));
         }
 
         protected void Application_End()
         {
-            startableBus.Dispose();
+            NSBEndpoint.Stop().Wait();
         }
     }
-
-    internal class MappingConfigurationSource : IProvideConfiguration<UnicastBusConfig>
-    {
-        public UnicastBusConfig GetConfiguration()
-        {
-            return new UnicastBusConfig
-            {
-                MessageEndpointMappings = new MessageEndpointMappingCollection
-                {
-                    new MessageEndpointMapping
-                    {
-                         Endpoint = "webjob",
-                         AssemblyName = "Contracts",
-                    }
-                }
-            };
-        }
-    }
-
-    internal class MessageForwardingInCaseOfFaultSource : IProvideConfiguration<MessageForwardingInCaseOfFaultConfig>
-    {
-        public MessageForwardingInCaseOfFaultConfig GetConfiguration()
-        {
-            return new MessageForwardingInCaseOfFaultConfig
-            {
-                ErrorQueue = "error"
-            };
-        }
-    }
-
-    internal class Audit : IProvideConfiguration<AuditConfig>
-    {
-        public AuditConfig GetConfiguration()
-        {
-            return new AuditConfig
-            {
-                QueueName = "audit"
-            };
-        }
-    }
+    
 
 }
