@@ -1,6 +1,7 @@
 ﻿using Contracts.Messages;
 using NServiceBus;
 using NServiceBus.Logging;
+using System.Threading.Tasks;
 
 namespace WebApp
 {
@@ -8,9 +9,10 @@ namespace WebApp
     {
         private ILog logger = LogManager.GetLogger<PongHandler>();
 
-        public void Handle(Pong message)
+        public Task Handle(Pong message, IMessageHandlerContext context)
         {
             logger.Info("Received Pong: " + message);
+            return Task.CompletedTask;
         }
     }
 }
